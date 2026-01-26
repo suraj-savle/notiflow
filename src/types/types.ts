@@ -32,12 +32,19 @@ export type ToastAnimationState = "entering" | "visible" | "exiting";
 
 export interface NotifyOptions {
   id?: string;
-  duration?: number;
+  duration?: number;        // autoClose
   position?: ToastPosition;
   status?: ToastStatus;
   closable?: boolean;
-  theme?: ToastTheme; // ✅ now supports custom themes
+  theme?: ToastTheme;
+
+  hideProgressBar?: boolean;
+  closeOnClick?: boolean;
+  pauseOnHover?: boolean;
+  draggable?: boolean;
+  transition?: "slide" | "bounce" | "zoom";
 }
+
 
 export interface ToastType {
   id: string;
@@ -46,6 +53,13 @@ export interface ToastType {
   status: ToastStatus;
   duration: number;
   closable: boolean;
-  theme: ToastTheme; // ✅ stored safely
+  theme: ToastTheme;
   animation: ToastAnimationState;
+
+  // NEW (toastify-style)
+  hideProgressBar?: boolean;
+  closeOnClick?: boolean;
+  pauseOnHover?: boolean;
+  draggable?: boolean;
+  transition?: "slide" | "bounce" | "zoom";
 }

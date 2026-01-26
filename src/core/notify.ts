@@ -4,35 +4,48 @@ import { NotifyOptions, ToastType } from "../types/types";
 import { toastStore } from "./storeBridge";
 import { setToastTimeout, clearToastTimeout } from "./timeoutManager";
 import { ANIMATION_DURATION } from "./constants";
+import { injectNotiflowStyles } from "./injectStyles";
 
 export function notify(
   message: React.ReactNode,
   options: NotifyOptions = {}
 ) {
+  injectNotiflowStyles();
   const id = options.id ?? generateId();
 
   const toast: ToastType = {
     id,
     message,
+
     position: options.position ?? "top-right",
     status: options.status ?? "idle",
-    duration: options.duration ?? 3000,
+    duration: options.duration ?? 5000,
     closable: options.closable ?? true,
     theme: options.theme ?? "default",
-    animation: "entering"
+    animation: "entering",
+
+    // toastify-like defaults
+    hideProgressBar: options.hideProgressBar ?? false,
+    closeOnClick: options.closeOnClick ?? true,
+    pauseOnHover: options.pauseOnHover ?? true,
+    draggable: options.draggable ?? true,
+    transition: options.transition ?? "slide",
   };
 
   toastStore.add(toast);
 
-  // allow enter animation before visible
+  // enter → visible
   setTimeout(() => {
     toastStore.update(id, { animation: "visible" });
   }, 10);
 
-  setToastTimeout(id, toast.duration, () => exitToast(id));
+  if (toast.duration > 0) {
+    setToastTimeout(id, toast.duration, () => exitToast(id));
+  }
 
   return id;
 }
+
 
 function exitToast(id: string) {
   toastStore.update(id, { animation: "exiting" });
@@ -50,9 +63,13 @@ notify.update = function (
 
   if (updates.duration !== undefined) {
     clearToastTimeout(id);
-    setToastTimeout(id, updates.duration, () => exitToast(id));
+
+    if (updates.duration > 0) {
+      setToastTimeout(id, updates.duration, () => exitToast(id));
+    }
   }
 };
+
 
 notify.promise = function <T>(
   promise: Promise<T>,

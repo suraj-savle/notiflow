@@ -1,22 +1,12 @@
+// src/components/Toast.tsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   ToastTheme,
-  CustomToastTheme,
   PresetToastTheme,
+  CustomToastTheme,
 } from "../types/types";
 import { TOAST_THEMES, ANIMATION_DURATION } from "../core/constants";
-
-function resolveTheme(theme?: ToastTheme): CustomToastTheme {
-  if (!theme) return TOAST_THEMES.default;
-
-  // custom object theme
-  if (typeof theme === "object") {
-    return theme;
-  }
-
-  // preset theme name
-  return TOAST_THEMES[theme] ?? TOAST_THEMES.default;
-}
+import "./toast.css";
 
 export interface ToastProps {
   id: string;
@@ -24,6 +14,20 @@ export interface ToastProps {
   theme?: ToastTheme;
   duration?: number;
   onClose: (id: string) => void;
+
+  hideProgressBar?: boolean;
+  closeOnClick?: boolean;
+  pauseOnHover?: boolean;
+  draggable?: boolean;
+  transition?: "slide" | "bounce" | "zoom";
+}
+
+function resolveTheme(theme?: ToastTheme): CustomToastTheme {
+  if (!theme) return TOAST_THEMES.default;
+
+  if (typeof theme === "object") return theme;
+
+  return TOAST_THEMES[theme] ?? TOAST_THEMES.default;
 }
 
 export default function Toast({
@@ -32,6 +36,11 @@ export default function Toast({
   theme,
   duration = 5000,
   onClose,
+  hideProgressBar = false,
+  closeOnClick = true,
+  pauseOnHover = true,
+  draggable = true,
+  transition = "slide",
 }: ToastProps) {
   const colors = resolveTheme(theme);
 
@@ -59,31 +68,46 @@ export default function Toast({
     setTimeout(() => onClose(id), ANIMATION_DURATION);
   };
 
+  const handleMouseEnter = () => {
+    if (!pauseOnHover) return;
+    if (timerRef.current && startRef.current) {
+      clearTimer();
+      const elapsed = Date.now() - startRef.current;
+      setRemaining((prev) => prev - elapsed);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!pauseOnHover) return;
+    if (remaining > 0) startTimer(remaining);
+  };
+
   useEffect(() => {
     if (duration === 0) return;
-
     setRemaining(duration);
     clearTimer();
     startTimer(duration);
-
     return clearTimer;
   }, [id, message, theme, duration]);
 
   return (
     <div
-      className={`toast ${isExiting ? "exit" : ""}`}
+      className={`toast ${isExiting ? "exit" : ""} ${transition}`}
       style={{
         "--toast-bg": colors.background,
         "--toast-text": colors.text,
         "--toast-progress": colors.progress,
       } as React.CSSProperties}
+      onClick={() => closeOnClick && handleClose()}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <span className="toast-message">{message}</span>
       <button className="toast-close" onClick={handleClose}>
         ✕
       </button>
 
-      {duration > 0 && (
+      {!hideProgressBar && duration! > 0 && (
         <div
           key={`${id}-${message}`}
           className="toast-progress"

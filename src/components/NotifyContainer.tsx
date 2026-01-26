@@ -3,8 +3,21 @@ import React, { useEffect } from "react";
 import { useToastStore } from "../store/toastStore";
 import { toastStore } from "../core/storeBridge";
 import Toast from "./Toast";
-import { ToastPosition } from "../types/types";
-import { injectNotiflowStyles } from "../core/injectStyles";
+import { ToastPosition, ToastType } from "../types/types";
+
+export interface NotifyContainerProps {
+  position?: ToastPosition;
+  autoClose?: number;
+  hideProgressBar?: boolean;
+  newestOnTop?: boolean;
+  closeOnClick?: boolean;
+  rtl?: boolean;
+  pauseOnFocusLoss?: boolean;
+  draggable?: boolean;
+  pauseOnHover?: boolean;
+  theme?: "default" | "light" | "success" | "error" | "warning" | "info";
+  transition?: "slide" | "bounce" | "zoom";
+}
 
 const POSITIONS: ToastPosition[] = [
   "top-left",
@@ -15,40 +28,53 @@ const POSITIONS: ToastPosition[] = [
   "bottom-right",
 ];
 
-export const NotifyContainer: React.FC = () => {
+export const NotifyContainer: React.FC<NotifyContainerProps> = (props) => {
+  const {
+    position = "top-right",
+    autoClose = 5000,
+    hideProgressBar = false,
+    newestOnTop = false,
+    closeOnClick = true,
+    rtl = false,
+    pauseOnFocusLoss = true,
+    draggable = true,
+    pauseOnHover = true,
+    theme = "default",
+    transition = "slide",
+  } = props;
+
   const { toasts, dispatch } = useToastStore();
 
   useEffect(() => {
     toastStore.register({
-      add: (toast: any) => dispatch({ type: "ADD_TOAST", toast }),
+      add: (toast: ToastType) => dispatch({ type: "ADD_TOAST", toast }),
       remove: (id: string) => dispatch({ type: "REMOVE_TOAST", id }),
-      update: (id: string, updates: any) =>
+      update: (id: string, updates: Partial<ToastType>) =>
         dispatch({ type: "UPDATE_TOAST", id, updates }),
     });
   }, [dispatch]);
 
-  useEffect(() => {
-    injectNotiflowStyles(); // 🔥 toastify-style behavior
-  }, []);
-
-  const handleClose = (id: string) => {
-    dispatch({ type: "REMOVE_TOAST", id });
-  };
+  const sortedToasts = newestOnTop ? [...toasts].reverse() : toasts;
 
   return (
     <>
-      {POSITIONS.map((position) => (
-        <div key={position} style={getContainerStyle(position)}>
-          {toasts
-            .filter((t) => t.position === position)
+      {POSITIONS.map((pos) => (
+        <div key={pos} style={getContainerStyle(pos, rtl)}>
+          {sortedToasts
+            .filter((t) => t.position === pos)
             .map((t) => (
               <Toast
                 key={t.id}
                 id={t.id}
                 message={t.message}
-                theme={t.theme}
-                duration={t.duration}
-                onClose={handleClose}
+                theme={t.theme ?? theme}
+                duration={t.duration ?? autoClose}
+                hideProgressBar={hideProgressBar}
+                closeOnClick={closeOnClick}
+                pauseOnHover={pauseOnHover}
+                draggable={draggable}
+                transition={transition}
+                onClose={(id) => dispatch({ type: "REMOVE_TOAST", id })}
               />
             ))}
         </div>
@@ -57,8 +83,11 @@ export const NotifyContainer: React.FC = () => {
   );
 };
 
-function getContainerStyle(position: ToastPosition): React.CSSProperties {
-  const base: React.CSSProperties = {
+function getContainerStyle(
+  position: ToastPosition,
+  rtl: boolean
+): React.CSSProperties {
+  const style: React.CSSProperties = {
     position: "fixed",
     zIndex: 9999,
     display: "flex",
@@ -67,14 +96,26 @@ function getContainerStyle(position: ToastPosition): React.CSSProperties {
     pointerEvents: "none",
   };
 
-  if (position.includes("top")) base.top = "16px";
-  if (position.includes("bottom")) base.bottom = "16px";
-  if (position.includes("left")) base.left = "16px";
-  if (position.includes("right")) base.right = "16px";
-  if (position.includes("middle")) {
-    base.left = "50%";
-    base.transform = "translateX(-50%)";
+  /* vertical */
+  if (position.startsWith("top")) style.top = "16px";
+  if (position.startsWith("bottom")) style.bottom = "16px";
+
+  /* horizontal */
+  if (position.endsWith("left")) {
+    style.left = rtl ? "unset" : "16px";
+    style.right = rtl ? "16px" : "unset";
   }
 
-  return base;
+  if (position.endsWith("right")) {
+    style.right = rtl ? "unset" : "16px";
+    style.left = rtl ? "16px" : "unset";
+  }
+
+  if (position.endsWith("middle")) {
+    style.left = "50%";
+    style.right = "unset";
+    style.transform = "translateX(-50%)";
+  }
+
+  return style;
 }

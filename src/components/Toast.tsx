@@ -1,119 +1,122 @@
-// src/components/Toast.tsx
-import React, { useEffect, useRef, useState } from "react";
-import {
-  ToastTheme,
-  PresetToastTheme,
-  CustomToastTheme,
-} from "../types/types";
-import { TOAST_THEMES, ANIMATION_DURATION } from "../core/constants";
-import "./toast.css";
+import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { ToastType } from "../types/types";
+import { TOAST_THEMES } from "../core/constants";
 
-export interface ToastProps {
-  id: string;
-  message: React.ReactNode;
-  theme?: ToastTheme;
-  duration?: number;
+const SWIPE_CLOSE = 90;
+
+interface ToastProps {
+  toast: ToastType;
   onClose: (id: string) => void;
-
-  hideProgressBar?: boolean;
-  closeOnClick?: boolean;
-  pauseOnHover?: boolean;
-  draggable?: boolean;
-  transition?: "slide" | "bounce" | "zoom";
 }
 
-function resolveTheme(theme?: ToastTheme): CustomToastTheme {
-  if (!theme) return TOAST_THEMES.default;
+export default function Toast({ toast, onClose }: ToastProps) {
+  const {
+    id,
+    duration,
+    theme = "default",
+    hideProgressBar,
+    closeOnClick,
+    draggable,
+  } = toast;
 
-  if (typeof theme === "object") return theme;
+  const colors =
+    typeof theme === "object"
+      ? theme
+      : TOAST_THEMES[theme] ?? TOAST_THEMES.default;
 
-  return TOAST_THEMES[theme] ?? TOAST_THEMES.default;
-}
+  const [input, setInput] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-export default function Toast({
-  id,
-  message,
-  theme,
-  duration = 5000,
-  onClose,
-  hideProgressBar = false,
-  closeOnClick = true,
-  pauseOnHover = true,
-  draggable = true,
-  transition = "slide",
-}: ToastProps) {
-  const colors = resolveTheme(theme);
-
-  const [isExiting, setIsExiting] = useState(false);
-  const [remaining, setRemaining] = useState(duration);
-
-  const timerRef = useRef<number | null>(null);
-  const startRef = useRef<number | null>(null);
-
-  const clearTimer = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const startTimer = (ms: number) => {
-    startRef.current = Date.now();
-    timerRef.current = window.setTimeout(handleClose, ms);
-  };
-
-  const handleClose = () => {
-    clearTimer();
-    setIsExiting(true);
-    setTimeout(() => onClose(id), ANIMATION_DURATION);
-  };
-
-  const handleMouseEnter = () => {
-    if (!pauseOnHover) return;
-    if (timerRef.current && startRef.current) {
-      clearTimer();
-      const elapsed = Date.now() - startRef.current;
-      setRemaining((prev) => prev - elapsed);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!pauseOnHover) return;
-    if (remaining > 0) startTimer(remaining);
-  };
-
+  // auto close (non-feedback)
   useEffect(() => {
-    if (duration === 0) return;
-    setRemaining(duration);
-    clearTimer();
-    startTimer(duration);
-    return clearTimer;
-  }, [id, message, theme, duration]);
+    if (toast.kind === "feedback") return;
+    if (!duration || duration === 0) return;
 
+    const timer = setTimeout(() => onClose(id), duration);
+    return () => clearTimeout(timer);
+  }, [id, duration, toast.kind, onClose]);
+
+  /* ---------------- FEEDBACK TOAST ---------------- */
+  if (toast.kind === "feedback") {
+    return (
+      <motion.div
+        className="toast feedback"
+        style={{
+          background: colors.background,
+          color: colors.text,
+          pointerEvents: "auto",
+        }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={(e) => e.stopPropagation()} // prevent accidental close
+      >
+        {toast.title && <strong className="toast-title">{toast.title}</strong>}
+
+        <textarea
+          placeholder={toast.placeholder ?? "Your feedback..."}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          rows={3}
+        />
+
+        <div className="toast-actions">
+          <button
+            className="toast-btn cancel"
+            onClick={() => onClose(id)}
+          >
+            {toast.cancelText ?? "Cancel"}
+          </button>
+
+          <button
+            className="toast-btn submit"
+            disabled={!input || submitting}
+            onClick={async () => {
+              setSubmitting(true);
+              await toast.onSubmit(input);
+              onClose(id);
+            }}
+          >
+            {submitting ? "Sending..." : toast.submitText ?? "Send"}
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ---------------- NORMAL TOAST ---------------- */
   return (
-    <div
-      className={`toast ${isExiting ? "exit" : ""} ${transition}`}
-      style={{
-        "--toast-bg": colors.background,
-        "--toast-text": colors.text,
-        "--toast-progress": colors.progress,
-      } as React.CSSProperties}
-      onClick={() => closeOnClick && handleClose()}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <motion.div
+      className="toast"
+      style={
+        {
+          "--toast-bg": colors.background,
+          "--toast-text": colors.text,
+          "--toast-progress": colors.progress,
+          pointerEvents: "auto",
+        } as React.CSSProperties
+      }
+      drag={draggable ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={(_, info) => {
+        if (Math.abs(info.offset.x) > SWIPE_CLOSE) onClose(id);
+      }}
+      onClick={() => closeOnClick && onClose(id)}
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
-      <span className="toast-message">{message}</span>
-      <button className="toast-close" onClick={handleClose}>
-        ✕
-      </button>
+      <span className="toast-message">{toast.message}</span>
 
-      {!hideProgressBar && duration! > 0 && (
-        <div
-          key={`${id}-${message}`}
+      {!hideProgressBar && duration > 0 && (
+        <motion.div
           className="toast-progress"
-          style={{ animationDuration: `${duration}ms` }}
+          initial={{ scaleX: 1 }}
+          animate={{ scaleX: 0 }}
+          transition={{ duration: duration / 1000, ease: "linear" }}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

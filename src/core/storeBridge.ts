@@ -1,22 +1,19 @@
 import { ToastType } from "../types/types";
+import { ToastUpdate } from "../store/toastStore";
 
 let handlers: any = null;
-let registered = false;
 
 export const toastStore = {
   register(h: any) {
-    if (registered) return;
     handlers = h;
-    registered = true;
   },
-  add(toast: any) {
+  add(toast: ToastType) {
     handlers?.add(toast);
   },
   remove(id: string) {
     handlers?.remove(id);
   },
-  update(id: string, updates: any) {
+  update(id: string, updates: ToastUpdate) {
     handlers?.update(id, updates);
-  }
+  },
 };
-

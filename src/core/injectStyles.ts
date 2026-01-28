@@ -2,7 +2,7 @@
 let injected = false;
 
 export function injectNotiflowStyles() {
-  if (typeof document === "undefined") return; // SSR safe
+  if (typeof document === "undefined") return;
   if (injected) return;
 
   injected = true;
@@ -11,7 +11,7 @@ export function injectNotiflowStyles() {
   style.setAttribute("data-notiflow", "true");
 
   style.innerHTML = `
-/* ===== Notiflow styles ===== */
+/* ===== Notiflow styles (NO ANIMATIONS) ===== */
 
 .toast {
   pointer-events: auto;
@@ -27,11 +27,7 @@ export function injectNotiflowStyles() {
   align-items: center;
   position: relative;
   overflow: hidden;
-  animation: toast-enter 200ms ease-out;
-}
-
-.toast.exit {
-  animation: toast-exit 180ms ease-in forwards;
+  cursor: grab;
 }
 
 .toast-message {
@@ -61,22 +57,6 @@ export function injectNotiflowStyles() {
   width: 100%;
   background: var(--toast-progress);
   transform-origin: left;
-  animation-name: toast-progress;
-  animation-timing-function: linear;
-}
-
-@keyframes toast-progress {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
-
-@keyframes toast-enter {
-  from { opacity: 0; transform: translateY(8px) scale(.96); }
-  to { opacity: 1; transform: none; }
-}
-
-@keyframes toast-exit {
-  to { opacity: 0; transform: translateY(-6px) scale(.95); }
 }
 `;
 

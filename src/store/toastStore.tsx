@@ -1,22 +1,35 @@
 import React, { createContext, useContext, useReducer } from "react";
-import { ToastType } from "../types/types";
+import { ToastType, NormalToast, FeedbackToast } from "../types/types";
+
+/* ================= SAFE UPDATE TYPE ================= */
+
+export type ToastUpdate =
+  | Partial<Omit<NormalToast, "id" | "kind">>
+  | Partial<Omit<FeedbackToast, "id" | "kind">>;
+
+/* ================= ACTIONS ================= */
 
 type Action =
   | { type: "ADD_TOAST"; toast: ToastType }
   | { type: "REMOVE_TOAST"; id: string }
-  | { type: "UPDATE_TOAST"; id: string; updates: Partial<ToastType> };
+  | { type: "UPDATE_TOAST"; id: string; updates: ToastUpdate };
 
-function toastReducer(state: ToastType[], action: Action): ToastType[] {
+/* ================= REDUCER ================= */
+
+function reducer(state: ToastType[], action: Action): ToastType[] {
   switch (action.type) {
     case "ADD_TOAST":
+      if (state.some((t) => t.id === action.toast.id)) {
+        return state; // ⛔ prevent duplicate
+      }
       return [...state, action.toast];
 
     case "REMOVE_TOAST":
-      return state.filter(t => t.id !== action.id);
+      return state.filter((t) => t.id !== action.id);
 
     case "UPDATE_TOAST":
-      return state.map(t =>
-        t.id === action.id ? { ...t, ...action.updates } : t
+      return state.map((toast) =>
+        toast.id === action.id ? { ...toast, ...action.updates } : toast,
       );
 
     default:
@@ -24,13 +37,19 @@ function toastReducer(state: ToastType[], action: Action): ToastType[] {
   }
 }
 
+/* ================= CONTEXT ================= */
+
 const ToastContext = createContext<{
   toasts: ToastType[];
   dispatch: React.Dispatch<Action>;
 } | null>(null);
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, dispatch] = useReducer(toastReducer, []);
+/* ================= PROVIDER ================= */
+
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [toasts, dispatch] = useReducer(reducer, []);
 
   return (
     <ToastContext.Provider value={{ toasts, dispatch }}>
@@ -39,8 +58,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+/* ================= HOOK ================= */
+
 export function useToastStore() {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error("ToastProvider missing");
+  if (!ctx) {
+    throw new Error("useToastStore must be used inside ToastProvider");
+  }
   return ctx;
 }

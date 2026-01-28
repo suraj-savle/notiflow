@@ -1,20 +1,24 @@
 import React from "react";
 import { generateId } from "../utils/generateId";
-import { NotifyOptions, ToastType } from "../types/types";
+import { NotifyOptions, ToastType, ToastUpdate } from "../types/types";
 import { toastStore } from "./storeBridge";
 import { setToastTimeout, clearToastTimeout } from "./timeoutManager";
 import { ANIMATION_DURATION } from "./constants";
 import { injectNotiflowStyles } from "./injectStyles";
 
-export function notify(
+/* ================= MAIN NOTIFY ================= */
+
+const notifyImpl = (
   message: React.ReactNode,
   options: NotifyOptions = {}
-) {
+): string => {
   injectNotiflowStyles();
+
   const id = options.id ?? generateId();
 
   const toast: ToastType = {
     id,
+    kind: "normal",
     message,
 
     position: options.position ?? "top-right",
@@ -24,17 +28,15 @@ export function notify(
     theme: options.theme ?? "default",
     animation: "entering",
 
-    // toastify-like defaults
     hideProgressBar: options.hideProgressBar ?? false,
     closeOnClick: options.closeOnClick ?? true,
     pauseOnHover: options.pauseOnHover ?? true,
-    draggable: options.draggable ?? true,
+    draggable: options.draggable ?? false,
     transition: options.transition ?? "slide",
   };
 
   toastStore.add(toast);
 
-  // enter → visible
   setTimeout(() => {
     toastStore.update(id, { animation: "visible" });
   }, 10);
@@ -44,8 +46,9 @@ export function notify(
   }
 
   return id;
-}
+};
 
+/* ================= EXIT ================= */
 
 function exitToast(id: string) {
   toastStore.update(id, { animation: "exiting" });
@@ -55,10 +58,39 @@ function exitToast(id: string) {
   }, ANIMATION_DURATION);
 }
 
-notify.update = function (
-  id: string,
-  updates: Partial<ToastType>
-) {
+/* ================= TYPE ================= */
+
+type NotifyFn = {
+  (message: React.ReactNode, options?: NotifyOptions): string;
+
+  update: (id: string, updates: ToastUpdate) => void;
+
+
+  promise: <T>(
+    p: Promise<T>,
+    options: {
+      loading: React.ReactNode;
+      success: React.ReactNode;
+      error: React.ReactNode;
+    }
+  ) => Promise<T>;
+
+  feedback: (options: {
+    title?: string;
+    placeholder?: string;
+    submitText?: string;
+    cancelText?: string;
+    onSubmit: (value: string) => void | Promise<string | void>;
+  }) => string;
+};
+
+/* ================= EXPORT ================= */
+
+export const notify = notifyImpl as NotifyFn;
+
+/* ================= UPDATE ================= */
+
+notify.update = (id, updates) => {
   toastStore.update(id, updates);
 
   if (updates.duration !== undefined) {
@@ -70,6 +102,7 @@ notify.update = function (
   }
 };
 
+/* ================= PROMISE ================= */
 
 notify.promise = function <T>(
   promise: Promise<T>,
@@ -82,7 +115,6 @@ notify.promise = function <T>(
   const id = notify(messages.loading, {
     status: "loading",
     duration: 0,
-    theme: "default"
   });
 
   promise
@@ -91,7 +123,7 @@ notify.promise = function <T>(
         message: messages.success,
         status: "success",
         theme: "success",
-        duration: 3000
+        duration: 3000,
       });
     })
     .catch(() => {
@@ -99,9 +131,37 @@ notify.promise = function <T>(
         message: messages.error,
         status: "error",
         theme: "error",
-        duration: 3000
+        duration: 3000,
       });
     });
 
   return promise;
+};
+
+/* ================= FEEDBACK ================= */
+
+notify.feedback = (options) => {
+  injectNotiflowStyles();
+
+  const id = generateId();
+
+  const toast: ToastType = {
+    id,
+    kind: "feedback",
+    position: "top-right",
+    status: "idle",
+    duration: 0,
+    closable: false,
+    theme: "default",
+    animation: "entering",
+
+    title: options.title ?? "Feedback",
+    placeholder: options.placeholder ?? "Type here...",
+    submitText: options.submitText ?? "Send",
+    cancelText: options.cancelText ?? "Cancel",
+    onSubmit: options.onSubmit,
+  };
+
+  toastStore.add(toast);
+  return id;
 };

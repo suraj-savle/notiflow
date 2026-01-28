@@ -35,3 +35,22 @@ export const TOAST_THEMES: Record<PresetToastTheme, CustomToastTheme> = {
 };
 
 export const ANIMATION_DURATION = 300;
+
+// export const ANIMATION_DURATION = 180;
+
+export const TRANSITIONS = {
+  slide: {
+    enter: "toast-slide-enter",
+    exit: "toast-slide-exit",
+  },
+  bounce: {
+    enter: "toast-bounce-enter",
+    exit: "toast-bounce-exit",
+  },
+  zoom: {
+    enter: "toast-zoom-enter",
+    exit: "toast-zoom-exit",
+  },
+} as const;
+
+export type ToastTransition = keyof typeof TRANSITIONS;

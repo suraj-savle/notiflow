@@ -11,7 +11,7 @@ export function injectNotiflowStyles() {
   style.setAttribute("data-notiflow", "true");
 
   style.innerHTML = `
-/* ===== Notiflow styles (NO ANIMATIONS) ===== */
+/* ===== Notiflow Base ===== */
 
 .toast {
   pointer-events: auto;
@@ -27,7 +27,6 @@ export function injectNotiflowStyles() {
   align-items: center;
   position: relative;
   overflow: hidden;
-  cursor: grab;
 }
 
 .toast-message {
@@ -36,18 +35,23 @@ export function injectNotiflowStyles() {
   line-height: 1.4;
 }
 
+/* ===== Close Button ===== */
+
 .toast-close {
   background: none;
   border: none;
-  color: inherit;
-  font-size: 16px;
+  padding: 2px;
   cursor: pointer;
   opacity: .7;
+  display: flex;
+  align-items: center;
 }
 
 .toast-close:hover {
   opacity: 1;
 }
+
+/* ===== Progress Bar ===== */
 
 .toast-progress {
   position: absolute;
@@ -57,6 +61,77 @@ export function injectNotiflowStyles() {
   width: 100%;
   background: var(--toast-progress);
   transform-origin: left;
+}
+
+/* ===== Draggable UX ===== */
+
+.toast[data-draggable="true"] {
+  cursor: grab;
+}
+
+.toast[data-draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* ===== FEEDBACK TOAST ===== */
+
+.toast.feedback {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  background: #111;
+  color: #fff;
+}
+
+.toast.feedback .toast-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.toast.feedback textarea {
+  resize: none;
+  border-radius: 6px;
+  padding: 8px;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  background: #1e1e1e;
+  color: #fff;
+}
+
+.toast.feedback textarea::placeholder {
+  color: #888;
+}
+
+/* ===== Feedback Buttons ===== */
+
+.toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.toast-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.toast-btn.cancel {
+  background: #2a2a2a;
+  color: #bbb;
+}
+
+.toast-btn.submit {
+  background: #4f46e5;
+  color: white;
+}
+
+.toast-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }
 `;
 

@@ -10,7 +10,13 @@ export type ToastPosition =
   | "bottom-middle";
 
 /* ================= STATUS ================= */
-export type ToastStatus = "idle" | "loading" | "success" | "error";
+export type ToastStatus =
+  | "idle"
+  | "loading"
+  | "success"
+  | "error"
+  | "warning"
+  | "info";
 
 /* ================= THEMES ================= */
 export type PresetToastTheme =

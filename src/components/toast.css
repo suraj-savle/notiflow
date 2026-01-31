@@ -46,6 +46,41 @@
   transform-origin: left;
 }
 
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 18px;
+  height: 18px;
+
+  color: currentColor;
+}
+
+.toast-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toast-spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+
+  /* 🔥 THIS IS THE MAGIC */
+  transform-origin: center;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 /* ================= FEEDBACK ================= */
 
 .toast.feedback {

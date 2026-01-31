@@ -45,7 +45,7 @@ export interface NotifyOptions {
   status?: ToastStatus;
   closable?: boolean;
   theme?: ToastTheme;
-
+  icon?: ToastIcon;
   hideProgressBar?: boolean;
   closeOnClick?: boolean;
   pauseOnHover?: boolean;
@@ -57,6 +57,11 @@ export interface NotifyOptions {
 export type ToastKind = "normal" | "feedback";
 
 /* ================= BASE TOAST ================= */
+export type ToastIcon =
+  | false
+  | React.ReactNode
+  | ((toast: ToastType) => React.ReactNode);
+
 interface BaseToast {
   id: string;
   position: ToastPosition;
@@ -66,7 +71,7 @@ interface BaseToast {
   theme: ToastTheme;
   animation: ToastAnimationState;
   kind: ToastKind;
-
+  icon?: ToastIcon;
   hideProgressBar?: boolean;
   closeOnClick?: boolean;
   pauseOnHover?: boolean;

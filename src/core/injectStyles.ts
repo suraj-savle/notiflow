@@ -13,6 +13,43 @@ export function injectNotiflowStyles() {
   style.innerHTML = `
 /* ===== Notiflow Base ===== */
 
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 18px;
+  height: 18px;
+
+  color: currentColor; /* 🔥 REQUIRED */
+}
+
+.toast-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+.toast-spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+
+  /* 🔥 THIS IS THE MAGIC */
+  transform-origin: center;
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 .toast {
   pointer-events: auto;
   min-width: 280px;
@@ -22,12 +59,16 @@ export function injectNotiflowStyles() {
   background: var(--toast-bg);
   color: var(--toast-text);
   box-shadow: 0 10px 30px rgba(0,0,0,.15);
+
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;              /* ✅ spacing */
+  justify-content: flex-start; /* ✅ NOT space-between */
+
   position: relative;
   overflow: hidden;
 }
+
 
 .toast-message {
   flex: 1;

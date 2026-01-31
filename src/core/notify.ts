@@ -20,14 +20,13 @@ const notifyImpl = (
     id,
     kind: "normal",
     message,
-
     position: options.position ?? "top-right",
     status: options.status ?? "idle",
     duration: options.duration ?? 5000,
     closable: options.closable ?? true,
     theme: options.theme ?? "default",
     animation: "entering",
-
+    icon: options.icon,
     hideProgressBar: options.hideProgressBar ?? false,
     closeOnClick: options.closeOnClick ?? true,
     pauseOnHover: options.pauseOnHover ?? true,
@@ -154,7 +153,6 @@ notify.feedback = (options) => {
     closable: false,
     theme: "default",
     animation: "entering",
-
     title: options.title ?? "Feedback",
     placeholder: options.placeholder ?? "Type here...",
     submitText: options.submitText ?? "Send",

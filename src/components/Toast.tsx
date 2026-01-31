@@ -11,39 +11,77 @@ import {
   Loader2,
 } from "lucide-react";
 
-
 const SWIPE_CLOSE = 90;
 
-interface ToastProps {
-  toast: ToastType;
-  onClose: (id: string) => void;
-}
+/* ================= ICON RESOLUTION ================= */
 
-export default function Toast({ toast, onClose }: ToastProps) {
+function resolveIcon(toast: ToastType) {
+  // Explicit disable
+  if (toast.icon === false) return null;
 
-function getToastIcon(
-  status?: ToastType["status"],
-  theme?: ToastType["theme"]
-) {
-  const key = status ?? (typeof theme === "string" ? theme : "default");
+  // Custom function icon
+  if (typeof toast.icon === "function") {
+    return toast.icon(toast);
+  }
 
-  switch (key) {
+  // Custom ReactNode icon
+  if (toast.icon) return toast.icon;
+
+  // Default icons by STATUS
+  switch (toast.status) {
     case "success":
       return <CheckCircle size={18} />;
     case "error":
       return <AlertCircle size={18} />;
-    case "warning":
-      return <AlertTriangle size={18} />;
-    case "info":
-      return <Info size={18} />;
     case "loading":
-      return <Loader2 size={18} className="toast-spin" />;
-    default:
-      return null;
+      return (
+        <Loader2
+          size={18}
+          className="toast-spinner"
+          style={
+            {
+              "--spin-duration": `${toast.duration ?? 1000}ms`,
+            } as React.CSSProperties
+          }
+        />
+      );
   }
+
+  // Fallback by THEME
+  if (typeof toast.theme === "string") {
+    if (toast.theme === "info") return <Info size={18} />;
+    if (toast.theme === "warning") return <AlertTriangle size={18} />;
+  }
+
+  return null;
 }
 
+/* ================= ICON ANIMATION ================= */
 
+const iconVariants = {
+  slide: {
+    initial: { x: -8, opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+  },
+  bounce: {
+    initial: { scale: 0.6, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+  },
+  zoom: {
+    initial: { scale: 0, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+  },
+};
+
+/* ================= COMPONENT ================= */
+
+export default function Toast({
+  toast,
+  onClose,
+}: {
+  toast: ToastType;
+  onClose: (id: string) => void;
+}) {
   const {
     id,
     duration,
@@ -58,19 +96,25 @@ function getToastIcon(
       ? theme
       : (TOAST_THEMES[theme] ?? TOAST_THEMES.default);
 
+  const resolvedIcon = resolveIcon(toast);
+
+  const isLoading = toast.status === "loading";
+
   const [input, setInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // auto close (non-feedback)
+  /* ===== AUTO CLOSE ===== */
   useEffect(() => {
     if (toast.kind === "feedback") return;
     if (!duration || duration === 0) return;
 
     const timer = setTimeout(() => onClose(id), duration);
     return () => clearTimeout(timer);
+    
   }, [id, duration, toast.kind, onClose]);
 
-  /* ---------------- FEEDBACK TOAST ---------------- */
+  /* ================= FEEDBACK TOAST ================= */
+
   if (toast.kind === "feedback") {
     return (
       <motion.div
@@ -78,29 +122,22 @@ function getToastIcon(
         style={{
           background: colors.background,
           color: colors.text,
-          pointerEvents: "auto",
         }}
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={(e) => e.stopPropagation()} // prevent accidental close
       >
-        {toast.title && <strong className="toast-title">{toast.title}</strong>}
+        {toast.title && <strong>{toast.title}</strong>}
 
         <textarea
-          placeholder={toast.placeholder ?? "Your feedback..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           rows={3}
         />
 
         <div className="toast-actions">
-          <button className="toast-btn cancel" onClick={() => onClose(id)}>
-            {toast.cancelText ?? "Cancel"}
-          </button>
-
+          <button onClick={() => onClose(id)}>Cancel</button>
           <button
-            className="toast-btn submit"
             disabled={!input || submitting}
             onClick={async () => {
               setSubmitting(true);
@@ -108,14 +145,15 @@ function getToastIcon(
               onClose(id);
             }}
           >
-            {submitting ? "Sending..." : (toast.submitText ?? "Send")}
+            Send
           </button>
         </div>
       </motion.div>
     );
   }
 
-  /* ---------------- NORMAL TOAST ---------------- */
+  /* ================= NORMAL TOAST ================= */
+
   return (
     <motion.div
       className="toast"
@@ -124,12 +162,11 @@ function getToastIcon(
           "--toast-bg": colors.background,
           "--toast-text": colors.text,
           "--toast-progress": colors.progress,
-          pointerEvents: "auto",
         } as React.CSSProperties
       }
-      data-draggable={draggable}
       drag={draggable ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
+      data-draggable={draggable}
       onDragEnd={(_, info) => {
         if (draggable && Math.abs(info.offset.x) > SWIPE_CLOSE) {
           onClose(id);
@@ -140,11 +177,20 @@ function getToastIcon(
       animate={{ y: 0, opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {getToastIcon(toast.status, toast.theme)}
+      {resolvedIcon && (
+        <motion.span
+          className="toast-icon"
+          variants={iconVariants[toast.transition ?? "slide"]}
+          initial="initial"
+          animate="animate"
+        >
+          {resolvedIcon}
+        </motion.span>
+      )}
 
       <span className="toast-message">{toast.message}</span>
 
-      {toast.closable && (
+      {!isLoading && toast.closable && (
         <button
           className="toast-close"
           onClick={(e) => {
@@ -152,11 +198,11 @@ function getToastIcon(
             onClose(id);
           }}
         >
-           <X size={18} />
+          <X size={18} />
         </button>
       )}
 
-      {!hideProgressBar && duration > 0 && (
+      {!hideProgressBar && duration > 0 && !isLoading && (
         <motion.div
           className="toast-progress"
           initial={{ scaleX: 1 }}

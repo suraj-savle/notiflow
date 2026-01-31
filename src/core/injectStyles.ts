@@ -11,7 +11,39 @@ export function injectNotiflowStyles() {
   style.setAttribute("data-notiflow", "true");
 
   style.innerHTML = `
-/* ===== Notiflow Base ===== */
+/* ================= BASE ================= */
+
+.toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 12px 14px;
+  border-radius: 10px;
+
+  background: var(--toast-bg);
+  color: var(--toast-text);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ================= MESSAGE ================= */
+
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ================= ICON ================= */
 
 .toast-icon {
   display: flex;
@@ -22,89 +54,66 @@ export function injectNotiflowStyles() {
   width: 18px;
   height: 18px;
 
-  color: currentColor; /* 🔥 REQUIRED */
+  color: currentColor;
 }
 
 .toast-icon svg {
   width: 18px;
   height: 18px;
+  stroke: currentColor;
 }
 
+/* ================= LOADER ================= */
 
 .toast-spinner {
   display: inline-block;
   animation: spin 1s linear infinite;
-
-  /* 🔥 THIS IS THE MAGIC */
   transform-origin: center;
 }
 
-
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-
-.toast {
-  pointer-events: auto;
-  min-width: 280px;
-  max-width: 360px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: var(--toast-bg);
-  color: var(--toast-text);
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
-
-  display: flex;
-  align-items: center;
-  gap: 10px;              /* ✅ spacing */
-  justify-content: flex-start; /* ✅ NOT space-between */
-
-  position: relative;
-  overflow: hidden;
-}
-
-
-.toast-message {
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* ===== Close Button ===== */
+/* ================= CLOSE BUTTON ================= */
 
 .toast-close {
   background: none;
   border: none;
   padding: 2px;
   cursor: pointer;
-  opacity: .7;
+
   display: flex;
   align-items: center;
+
+  color: currentColor;
+  opacity: .7;
+}
+
+.toast-close svg {
+  stroke: currentColor; /* 🔥 DARK MODE FIX */
 }
 
 .toast-close:hover {
   opacity: 1;
 }
 
-/* ===== Progress Bar ===== */
+/* ================= PROGRESS ================= */
 
 .toast-progress {
   position: absolute;
   bottom: 0;
   left: 0;
+
   height: 3px;
   width: 100%;
+
   background: var(--toast-progress);
   transform-origin: left;
 }
 
-/* ===== Draggable UX ===== */
+/* ================= DRAG ================= */
 
 .toast[data-draggable="true"] {
   cursor: grab;
@@ -114,12 +123,13 @@ export function injectNotiflowStyles() {
   cursor: grabbing;
 }
 
-/* ===== FEEDBACK TOAST ===== */
+/* ================= FEEDBACK TOAST ================= */
 
 .toast.feedback {
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
+
   background: #111;
   color: #fff;
 }
@@ -130,11 +140,14 @@ export function injectNotiflowStyles() {
 }
 
 .toast.feedback textarea {
+  width: 100%;
   resize: none;
-  border-radius: 6px;
+
   padding: 8px;
+  border-radius: 6px;
   border: none;
   outline: none;
+
   font-size: 13px;
   background: #1e1e1e;
   color: #fff;
@@ -144,7 +157,7 @@ export function injectNotiflowStyles() {
   color: #888;
 }
 
-/* ===== Feedback Buttons ===== */
+/* ================= FEEDBACK ACTIONS ================= */
 
 .toast-actions {
   display: flex;
@@ -167,7 +180,7 @@ export function injectNotiflowStyles() {
 
 .toast-btn.submit {
   background: #4f46e5;
-  color: white;
+  color: #fff;
 }
 
 .toast-btn:disabled {

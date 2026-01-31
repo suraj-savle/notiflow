@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { ToastType } from "../types/types";
 import { TOAST_THEMES } from "../core/constants";
 import {
@@ -16,18 +16,14 @@ const SWIPE_CLOSE = 90;
 /* ================= ICON RESOLUTION ================= */
 
 function resolveIcon(toast: ToastType) {
-  // Explicit disable
   if (toast.icon === false) return null;
 
-  // Custom function icon
   if (typeof toast.icon === "function") {
     return toast.icon(toast);
   }
 
-  // Custom ReactNode icon
   if (toast.icon) return toast.icon;
 
-  // Default icons by STATUS
   switch (toast.status) {
     case "success":
       return <CheckCircle size={18} />;
@@ -47,7 +43,6 @@ function resolveIcon(toast: ToastType) {
       );
   }
 
-  // Fallback by THEME
   if (typeof toast.theme === "string") {
     if (toast.theme === "info") return <Info size={18} />;
     if (toast.theme === "warning") return <AlertTriangle size={18} />;
@@ -86,31 +81,33 @@ export default function Toast({
     id,
     duration,
     theme = "default",
+    mode = "dark",
     hideProgressBar,
     closeOnClick,
     draggable,
   } = toast;
 
+  /* ===== THEME RESOLUTION (LIGHT / DARK) ===== */
+
   const colors =
     typeof theme === "object"
       ? theme
-      : (TOAST_THEMES[theme] ?? TOAST_THEMES.default);
+      : TOAST_THEMES[mode][theme];
 
   const resolvedIcon = resolveIcon(toast);
-
   const isLoading = toast.status === "loading";
 
   const [input, setInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  /* ===== AUTO CLOSE ===== */
+  /* ================= AUTO CLOSE ================= */
+
   useEffect(() => {
     if (toast.kind === "feedback") return;
     if (!duration || duration === 0) return;
 
     const timer = setTimeout(() => onClose(id), duration);
     return () => clearTimeout(timer);
-    
   }, [id, duration, toast.kind, onClose]);
 
   /* ================= FEEDBACK TOAST ================= */

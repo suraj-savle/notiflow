@@ -18,6 +18,9 @@ export type ToastStatus =
   | "warning"
   | "info";
 
+/* ================= COLOR MODE ================= */
+export type ColorMode = "light" | "dark";
+
 /* ================= THEMES ================= */
 export type PresetToastTheme =
   | "default"
@@ -37,7 +40,13 @@ export type ToastTheme = PresetToastTheme | CustomToastTheme;
 /* ================= ANIMATION ================= */
 export type ToastAnimationState = "entering" | "visible" | "exiting";
 
-/* ================= NOTIFY OPTIONS ================= */
+/* ================= ICON ================= */
+export type ToastIcon =
+  | false
+  | React.ReactNode
+  | ((toast: ToastType) => React.ReactNode);
+
+/* ================= OPTIONS ================= */
 export interface NotifyOptions {
   id?: string;
   duration?: number;
@@ -51,17 +60,10 @@ export interface NotifyOptions {
   pauseOnHover?: boolean;
   draggable?: boolean;
   transition?: "slide" | "bounce" | "zoom";
+  mode?: ColorMode; // 👈 NEW
 }
 
-/* ================= TOAST KINDS ================= */
-export type ToastKind = "normal" | "feedback";
-
-/* ================= BASE TOAST ================= */
-export type ToastIcon =
-  | false
-  | React.ReactNode
-  | ((toast: ToastType) => React.ReactNode);
-
+/* ================= BASE ================= */
 interface BaseToast {
   id: string;
   position: ToastPosition;
@@ -70,22 +72,22 @@ interface BaseToast {
   closable: boolean;
   theme: ToastTheme;
   animation: ToastAnimationState;
-  kind: ToastKind;
   icon?: ToastIcon;
   hideProgressBar?: boolean;
   closeOnClick?: boolean;
   pauseOnHover?: boolean;
   draggable?: boolean;
   transition?: "slide" | "bounce" | "zoom";
+  mode: ColorMode; // 👈 REQUIRED
 }
 
-/* ================= NORMAL TOAST ================= */
+/* ================= NORMAL ================= */
 export interface NormalToast extends BaseToast {
   kind: "normal";
   message: React.ReactNode;
 }
 
-/* ================= FEEDBACK TOAST ================= */
+/* ================= FEEDBACK ================= */
 export interface FeedbackToast extends BaseToast {
   kind: "feedback";
   title?: string;
@@ -95,9 +97,10 @@ export interface FeedbackToast extends BaseToast {
   onSubmit: (value: string) => void | Promise<string | void>;
 }
 
-/* ================= FINAL UNION ================= */
+/* ================= UNION ================= */
 export type ToastType = NormalToast | FeedbackToast;
 
+/* ================= UPDATE ================= */
 export type ToastUpdate =
   | (Partial<Omit<NormalToast, "kind" | "id">> & { kind?: "normal" })
   | (Partial<Omit<FeedbackToast, "kind" | "id">> & { kind?: "feedback" });

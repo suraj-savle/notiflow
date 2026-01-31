@@ -6,7 +6,7 @@ import { setToastTimeout, clearToastTimeout } from "./timeoutManager";
 import { ANIMATION_DURATION } from "./constants";
 import { injectNotiflowStyles } from "./injectStyles";
 
-/* ================= MAIN NOTIFY ================= */
+/* ================= MAIN ================= */
 
 const notifyImpl = (
   message: React.ReactNode,
@@ -32,6 +32,7 @@ const notifyImpl = (
     pauseOnHover: options.pauseOnHover ?? true,
     draggable: options.draggable ?? false,
     transition: options.transition ?? "slide",
+    mode: options.mode ?? "light", // ✅ FIX
   };
 
   toastStore.add(toast);
@@ -61,9 +62,7 @@ function exitToast(id: string) {
 
 type NotifyFn = {
   (message: React.ReactNode, options?: NotifyOptions): string;
-
   update: (id: string, updates: ToastUpdate) => void;
-
 
   promise: <T>(
     p: Promise<T>,
@@ -80,7 +79,13 @@ type NotifyFn = {
     submitText?: string;
     cancelText?: string;
     onSubmit: (value: string) => void | Promise<string | void>;
+    mode?: "light" | "dark";
   }) => string;
+
+  success: (message: React.ReactNode, options?: NotifyOptions) => string;
+  error: (message: React.ReactNode, options?: NotifyOptions) => string;
+  warning: (message: React.ReactNode, options?: NotifyOptions) => string;
+  info: (message: React.ReactNode, options?: NotifyOptions) => string;
 };
 
 /* ================= EXPORT ================= */
@@ -147,7 +152,7 @@ notify.feedback = (options) => {
   const toast: ToastType = {
     id,
     kind: "feedback",
-    position: "top-right",
+    position: "bottom-right",
     status: "idle",
     duration: 0,
     closable: false,
@@ -158,8 +163,39 @@ notify.feedback = (options) => {
     submitText: options.submitText ?? "Send",
     cancelText: options.cancelText ?? "Cancel",
     onSubmit: options.onSubmit,
+    mode: options.mode ?? "dark", // ✅ FIX
   };
 
   toastStore.add(toast);
   return id;
 };
+
+/* ================= PRESET HELPERS ================= */
+
+notify.success = (message, options = {}) =>
+  notify(message, {
+    ...options,
+    status: "success",
+    theme: "success",
+  });
+
+notify.error = (message, options = {}) =>
+  notify(message, {
+    ...options,
+    status: "error",
+    theme: "error",
+  });
+
+notify.warning = (message, options = {}) =>
+  notify(message, {
+    ...options,
+    status: "warning",
+    theme: "warning",
+  });
+
+notify.info = (message, options = {}) =>
+  notify(message, {
+    ...options,
+    status: "info",
+    theme: "info",
+  });

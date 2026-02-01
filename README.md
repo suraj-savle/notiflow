@@ -31,19 +31,16 @@ We built it because we wanted:
 
 Notiflow is for developers who enjoy building and customizing — not just installing and forgetting.
 
-## 📦 Installation
+##Local Linking (Testing in your own app)
 
 ```bash
-npm install notiflow
-````
-
-or
-
-```bash
-yarn add notiflow
+# Inside the notiflow directory
+npm link
 ```
-
----
+```bash
+# Inside your test project
+npm link notiflow
+```
 
 ## 🚀 Basic Usage
 

@@ -91,11 +91,12 @@ export interface NormalToast extends BaseToast {
 export interface FeedbackToast extends BaseToast {
   kind: "feedback";
   title?: string;
+  helperText?: string;
   placeholder?: string;
   submitText?: string;
-  cancelText?: string;
   onSubmit: (value: string) => void | Promise<string | void>;
 }
+
 
 /* ================= UNION ================= */
 export type ToastType = NormalToast | FeedbackToast;

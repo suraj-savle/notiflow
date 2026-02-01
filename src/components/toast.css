@@ -95,68 +95,174 @@
 }
 
 /* ================= FEEDBACK TOAST ================= */
-
 .toast.feedback {
   width: 320px;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  
+  /* Vertical layout */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Consistent spacing between all elements */
+}
 
-  background: #111;
-  color: #fff;
+.feedback-head {
+  display: flex;
+  align-items: flex-start; /* Align items to top */
+  justify-content: space-between;
+  gap: 12px; /* Space between title and close button */
+}
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+.toast-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 4px;
+  line-height: 1;
+  flex-shrink: 0; /* Prevent button from shrinking */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.toast-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .toast.feedback strong {
-  display: block;
-  margin-bottom: 8px;
+  font-size: 18px; /* Balanced size */
+  font-weight: 600;
+  line-height: 1.4;
+  flex-grow: 1; /* Allow title to take remaining space */
+  margin: 0; /* Remove margins since we use gap */
+  text-align: left; /* Left aligned in vertical layout */
+  padding-right: 8px; /* Space before close button */
+}
+
+.toast-subtext {
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.7;
+  line-height: 1.5;
+  margin: 0; /* Remove margins, using gap instead */
 }
 
 .toast.feedback textarea {
   width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-
-  border-radius: 8px;
-  border: none;
-  resize: none;
+  min-height: 120px; /* Taller textarea */
+  padding: 16px; /* More comfortable padding */
+  border-radius: 12px;
+  border: 1px solid;
+  border-color: inherit;
+  opacity: 0.3;
+  resize: vertical;
   outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  font-family: inherit; /* Match the rest of the UI */
+}
 
-  background: #1e1e1e;
-  color: #fff;
-  font-size: 13px;
+.toast.feedback textarea:focus {
+  opacity: 0.8;
+  border-width: 1.5px;
+}
+
+.toast.feedback textarea::placeholder {
+  color: inherit;
+  opacity: 0.5;
 }
 
 /* ================= FEEDBACK ACTIONS ================= */
 
 .toast-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  flex-direction: column; /* Vertical button layout */
+  gap: 12px;
+  margin-top: 4px; /* Small top margin */
 }
 
 .toast-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 12px 20px; /* Comfortable padding */
+  border-radius: 10px;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%; /* Full width buttons in vertical layout */
+  text-align: center;
 }
 
 .toast-btn.cancel {
   background: transparent;
-  color: #aaa;
+  color: inherit;
+  opacity: 0.7;
+  border: 1px solid;
+  border-color: inherit;
+  opacity: 0.3;
+}
+
+.toast-btn.cancel:hover {
+  opacity: 0.8;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .toast-btn.submit {
   background: #4f46e5;
   color: white;
+  font-weight: 600;
+}
+
+.toast-btn.submit:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 .toast-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading state for submit button */
+.toast-btn.submit.loading {
+  position: relative;
+  color: transparent;
+}
+
+.toast-btn.submit.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: toast-spin 0.8s linear infinite;
+}
+
+@keyframes toast-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 /* ================= TRANSITIONS ================= */

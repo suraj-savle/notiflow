@@ -161,7 +161,7 @@ notify.feedback = (options) => {
     title: options.title ?? "Feedback",
     placeholder: options.placeholder ?? "Type here...",
     submitText: options.submitText ?? "Send",
-    cancelText: options.cancelText ?? "Cancel",
+    // cancelText: options.cancelText ?? "Cancel",
     onSubmit: options.onSubmit,
     mode: options.mode ?? "dark", // ✅ FIX
   };

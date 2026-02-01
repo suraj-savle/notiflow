@@ -81,7 +81,7 @@ export default function Toast({
     id,
     duration,
     theme = "default",
-    mode = "dark",
+    mode = "light",
     hideProgressBar,
     closeOnClick,
     draggable,
@@ -89,10 +89,7 @@ export default function Toast({
 
   /* ===== THEME RESOLUTION (LIGHT / DARK) ===== */
 
-  const colors =
-    typeof theme === "object"
-      ? theme
-      : TOAST_THEMES[mode][theme];
+  const colors = typeof theme === "object" ? theme : TOAST_THEMES[mode][theme];
 
   const resolvedIcon = resolveIcon(toast);
   const isLoading = toast.status === "loading";
@@ -113,6 +110,11 @@ export default function Toast({
   /* ================= FEEDBACK TOAST ================= */
 
   if (toast.kind === "feedback") {
+    const title = toast.title ?? "Feedback";
+    const helperText = toast.helperText ?? "Your feedback helps us improve.";
+    const placeholder = toast.placeholder ?? "Share your thoughts...";
+    const submitText = toast.submitText ?? "Send";
+
     return (
       <motion.div
         className="toast feedback"
@@ -124,17 +126,35 @@ export default function Toast({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        {toast.title && <strong>{toast.title}</strong>}
+        <div className="feedback-head">
 
+          {/* Title */}
+          <strong className="toast-title">{title}</strong>
+
+          <button
+            className="toast-close"
+            onClick={() => onClose(id)}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Helper line */}
+        <p className="toast-subtext">{helperText}</p>
+
+        {/* Input */}
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           rows={3}
+          placeholder={placeholder}
         />
 
+        {/* Actions */}
         <div className="toast-actions">
-          <button onClick={() => onClose(id)}>Cancel</button>
           <button
+            className="toast-btn submit"
             disabled={!input || submitting}
             onClick={async () => {
               setSubmitting(true);
@@ -142,7 +162,7 @@ export default function Toast({
               onClose(id);
             }}
           >
-            Send
+            {submitting ? "Sending..." : submitText}
           </button>
         </div>
       </motion.div>

@@ -31,7 +31,7 @@ We built it because we wanted:
 
 Notiflow is for developers who enjoy building and customizing — not just installing and forgetting.
 
-##Local Linking (Testing in your own app)
+## Local Linking (Testing in your own app)
 
 ```bash
 # Inside the notiflow directory
@@ -59,7 +59,6 @@ function App() {
 }
 ```
 
----
 
 ### 2️⃣ Trigger a toast
 
@@ -69,7 +68,6 @@ import { notify } from "notiflow";
 notify("Hello Notiflow 👋");
 ```
 
----
 
 ## ✅ Preset Helpers
 

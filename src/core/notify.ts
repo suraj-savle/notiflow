@@ -4,7 +4,6 @@ import { NotifyOptions, ToastType, ToastUpdate } from "../types/types";
 import { toastStore } from "./storeBridge";
 import { setToastTimeout, clearToastTimeout } from "./timeoutManager";
 import { ANIMATION_DURATION } from "./constants";
-import { injectNotiflowStyles } from "../styles/injectStyles";
 
 /* ================= MAIN ================= */
 
@@ -12,7 +11,6 @@ const notifyImpl = (
   message: React.ReactNode,
   options: NotifyOptions = {}
 ): string => {
-  injectNotiflowStyles();
 
   const id = options.id ?? generateId();
 
@@ -145,8 +143,6 @@ notify.promise = function <T>(
 /* ================= FEEDBACK ================= */
 
 notify.feedback = (options) => {
-  injectNotiflowStyles();
-
   const id = generateId();
 
   const toast: ToastType = {

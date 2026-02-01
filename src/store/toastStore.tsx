@@ -39,29 +39,29 @@ function reducer(state: ToastType[], action: Action): ToastType[] {
 
 /* ================= CONTEXT ================= */
 
-const ToastContext = createContext<{
+const NotifyContext = createContext<{
   toasts: ToastType[];
   dispatch: React.Dispatch<Action>;
 } | null>(null);
 
 /* ================= PROVIDER ================= */
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+export const NotifyProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [toasts, dispatch] = useReducer(reducer, []);
 
   return (
-    <ToastContext.Provider value={{ toasts, dispatch }}>
+    <NotifyContext.Provider value={{ toasts, dispatch }}>
       {children}
-    </ToastContext.Provider>
+    </NotifyContext.Provider>
   );
 };
 
 /* ================= HOOK ================= */
 
 export function useToastStore() {
-  const ctx = useContext(ToastContext);
+  const ctx = useContext(NotifyContext);
   if (!ctx) {
     throw new Error("useToastStore must be used inside ToastProvider");
   }

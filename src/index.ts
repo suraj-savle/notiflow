@@ -1,4 +1,20 @@
+
+
+import { injectNotiflowStyles } from "./styles/injectStyles";
+
+/* inject once when library loads */
+injectNotiflowStyles();
+
+/* public api */
 export { notify } from "./core/notify";
-export { ToastProvider } from "./store/toastStore";
 export { NotifyContainer } from "./components/NotifyContainer";
-export type { NotifyOptions, ToastPosition } from "./types/types";
+
+/* ⚠️ DO NOT export ToastProvider */
+export type {
+  NotifyOptions,
+  ToastPosition,
+  ToastStatus,
+  ToastTheme,
+} from "./types/types";
+
+export { NotifyProvider } from "./store/toastStore";

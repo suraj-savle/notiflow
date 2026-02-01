@@ -1,29 +1,61 @@
 {
-  "name": "notiflow",
-  "version": "0.0.1",
-  "description": "A modern notification system for React",
-  "main": "dist/notiflow.umd.cjs",
-  "module": "dist/notiflow.es.js",
-  "types": "dist/index.d.ts",
+  "name": "react-notiflow",
+  "version": "0.1.0",
+  "description": "A modern, lightweight, and extensible notification system for React",
+  "license": "MIT",
+  "author": "Notiflow Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suraj-savle/notiflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/suraj-savle/notiflow/issues"
+  },
+  "homepage": "https://github.com/suraj-savle/notiflow#readme",
+  "keywords": [
+    "react",
+    "notification",
+    "toast",
+    "react-toast",
+    "ui",
+    "feedback",
+    "snackbar",
+    "alert",
+    "message",
+    "headless-ui"
+  ],
   "files": [
     "dist"
   ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "peerDependencies": {
     "react": ">=17",
     "react-dom": ">=17"
   },
   "scripts": {
-    "build": "vite build"
+    "build": "tsup src/index.ts --format cjs,esm --dts --out-dir dist",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "framer-motion": "^12.29.2",
+    "lucide-react": "^0.563.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
-  },
-  "dependencies": {
-    "framer-motion": "^12.29.2",
-    "lucide-react": "^0.563.0"
   }
 }

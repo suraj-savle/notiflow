@@ -89,7 +89,7 @@ src/
 
 1.Fork & Clone
 ```bash
-git clone https://github.com/<your-username>/notiflow.git
+git clone https://github.com/suraj-savle>/notiflow.git
 ```
 ```bash
 cd notiflow

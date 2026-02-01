@@ -2,26 +2,34 @@
 currently working on this 🙂
 
 src/
-├── index.ts                      # Public API exports ONLY
+├── index.ts
 │
 ├── core/
-│   ├── notify.ts                 # notify(), notify.update(), notify.promise()
-│   ├── storeBridge.ts            # Bridge between core API & React store
-│   ├── timeoutManager.ts         # Centralized toast lifecycle timers
-│   └── constants.ts              # Animation + system constants
+│   ├── notify.ts
+│   ├── storeBridge.ts
+│   ├── timeoutManager.ts
+│   ├── animations.ts
+│   └── constants.ts
 │
 ├── store/
-│   └── toastStore.tsx             # ToastProvider, reducer, context
+│   └── toastStore.tsx
 │
 ├── components/
-│   ├── NotifyContainer.tsx        # Position-based containers & stacking
-│   └── Toast.tsx                  # Toast UI, animations, themes
+│   ├── NotifyContainer.tsx
+│   └── Toast.tsx
+│
+├── styles/
+│   ├── notiflow.css
+│   ├── variables.css
+│   └── injectStyles.ts
+│
+├── internal/
+│   ├── resolveIcon.ts
+│   ├── resolveTheme.ts
+│   └── resolvePosition.ts
 │
 ├── types/
-│   └── types.ts                   # ALL shared TypeScript types
+│   └── types.ts
 │
 ├── utils/
-│   └── generateId.ts              # Toast ID generator
-│
-└── styles/                        # (Optional / future)
-    └── README.md                  # Placeholder for future CSS theming
+│   └── generateId.ts

@@ -1,74 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
+
 import { ToastType } from "../types/types";
-import { TOAST_THEMES } from "../core/constants";
-import {
-  X,
-  CheckCircle,
-  AlertCircle,
-  Info,
-  AlertTriangle,
-  Loader2,
-} from "lucide-react";
+import { resolveIcon } from "../internal/resolveIcon";
+import { resolveTheme } from "../internal/resolveTheme";
+import { resolveFeedback } from "../internal/resolveFeedback";
+import { iconVariants } from "../internal/resolveAnimation";
 
 const SWIPE_CLOSE = 90;
-
-/* ================= ICON RESOLUTION ================= */
-
-function resolveIcon(toast: ToastType) {
-  if (toast.icon === false) return null;
-
-  if (typeof toast.icon === "function") {
-    return toast.icon(toast);
-  }
-
-  if (toast.icon) return toast.icon;
-
-  switch (toast.status) {
-    case "success":
-      return <CheckCircle size={18} />;
-    case "error":
-      return <AlertCircle size={18} />;
-    case "loading":
-      return (
-        <Loader2
-          size={18}
-          className="toast-spinner"
-          style={
-            {
-              "--spin-duration": `${toast.duration ?? 1000}ms`,
-            } as React.CSSProperties
-          }
-        />
-      );
-  }
-
-  if (typeof toast.theme === "string") {
-    if (toast.theme === "info") return <Info size={18} />;
-    if (toast.theme === "warning") return <AlertTriangle size={18} />;
-  }
-
-  return null;
-}
-
-/* ================= ICON ANIMATION ================= */
-
-const iconVariants = {
-  slide: {
-    initial: { x: -8, opacity: 0 },
-    animate: { x: 0, opacity: 1 },
-  },
-  bounce: {
-    initial: { scale: 0.6, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
-  },
-  zoom: {
-    initial: { scale: 0, opacity: 0 },
-    animate: { scale: 1, opacity: 1 },
-  },
-};
-
-/* ================= COMPONENT ================= */
 
 export default function Toast({
   toast,
@@ -87,12 +27,13 @@ export default function Toast({
     draggable,
   } = toast;
 
-  /* ===== THEME RESOLUTION (LIGHT / DARK) ===== */
+  /* ================= RESOLVERS ================= */
 
-  const colors = typeof theme === "object" ? theme : TOAST_THEMES[mode][theme];
-
+  const colors = resolveTheme(theme, mode);
   const resolvedIcon = resolveIcon(toast);
   const isLoading = toast.status === "loading";
+
+  /* ================= FEEDBACK STATE ================= */
 
   const [input, setInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -110,10 +51,8 @@ export default function Toast({
   /* ================= FEEDBACK TOAST ================= */
 
   if (toast.kind === "feedback") {
-    const title = toast.title ?? "Feedback";
-    const helperText = toast.helperText ?? "Your feedback helps us improve.";
-    const placeholder = toast.placeholder ?? "Share your thoughts...";
-    const submitText = toast.submitText ?? "Send";
+    const { title, helperText, placeholder, submitText } =
+      resolveFeedback(toast);
 
     return (
       <motion.div
@@ -126,9 +65,8 @@ export default function Toast({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ opacity: 0 }}
       >
+        {/* Header */}
         <div className="feedback-head">
-
-          {/* Title */}
           <strong className="toast-title">{title}</strong>
 
           <button
@@ -140,7 +78,7 @@ export default function Toast({
           </button>
         </div>
 
-        {/* Helper line */}
+        {/* Helper text */}
         <p className="toast-subtext">{helperText}</p>
 
         {/* Input */}
@@ -194,6 +132,7 @@ export default function Toast({
       animate={{ y: 0, opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* Icon */}
       {resolvedIcon && (
         <motion.span
           className="toast-icon"
@@ -205,8 +144,10 @@ export default function Toast({
         </motion.span>
       )}
 
+      {/* Message */}
       <span className="toast-message">{toast.message}</span>
 
+      {/* Close */}
       {!isLoading && toast.closable && (
         <button
           className="toast-close"
@@ -219,6 +160,7 @@ export default function Toast({
         </button>
       )}
 
+      {/* Progress bar */}
       {!hideProgressBar && duration > 0 && !isLoading && (
         <motion.div
           className="toast-progress"

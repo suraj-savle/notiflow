@@ -4,7 +4,7 @@ import { NotifyOptions, ToastType, ToastUpdate } from "../types/types";
 import { toastStore } from "./storeBridge";
 import { setToastTimeout, clearToastTimeout } from "./timeoutManager";
 import { ANIMATION_DURATION } from "./constants";
-import { injectNotiflowStyles } from "./injectStyles";
+import { injectNotiflowStyles } from "../styles/injectStyles";
 
 /* ================= MAIN ================= */
 
